@@ -13,7 +13,7 @@ try {
   }
 }
 catch(e) {
-
+result = "Failure";
 def subject = "${env.JOB_NAME} - Build #${env.BUILD_NUMBER} ${result}"
 
 def content = '${JELLY_SCRIPT,template="html"}'
