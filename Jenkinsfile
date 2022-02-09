@@ -1,75 +1,29 @@
-#!groovy
+node {
+def to = emailextrecipients([
+           "nreddynaveen2@gmail.com",
+])
 
-pipeline {
-
-  agent any
-
-  environment {
-    git_commit_message = ''
-    git_commit_diff = ''
-    git_commit_author = ''
-    git_commit_author_name = ''
-    git_commit_author_email = ''
+try {
+ stage{'build') {
+  println(" so far so good")
   }
-
-  stages {
-
-    // Build
-    stage('Build') {
-      agent {
-        label 'node'
-      }
-      steps {
-        deleteDir()
-        checkout scm
-      }
-    }
-
-    // Static Code Analysis
-    stage('Static Code Analysis') {
-      agent {
-        label 'node'
-      }
-      steps {
-        deleteDir()
-        checkout scm
-        sh "echo 'Run Static Code Analysis'"
-      }
-    }
-
-    // Unit Tests
-    stage('Unit Tests') {
-      agent {
-        label 'node'
-      }
-      steps {
-        deleteDir()
-        checkout scm
-        sh "echo 'Run Unit Tests'"
-      }
-    }
-
-    // Acceptance Tests
-    stage('Acceptance Tests') {
-      agent {
-        label 'node'
-      }
-      steps {
-        deleteDir()
-        checkout scm
-        sh "echo 'Run Acceptance Tests'"
-      }
-    }
-
+  stage('test') {
+  println(" A test has failed")
+  sh 'exit 1'
   }
-  post {
-    success {
-      sh "echo 'Send mail on success'"
-      // mail to:"me@example.com", subject:"SUCCESS: ${currentBuild.fullDisplayName}", body: "Yay, we passed."
-    }
-    failure {
-      sh "echo 'Send mail on failure'"
-      // mail to:"me@example.com", subject:"FAILURE: ${currentBuild.fullDisplayName}", body: "Boo, we failed."
-    }
-  }
+}
+catch(e) {
+
+def subject = "${env.JOB_NAME} - Build #${env.BUILD_NUMBER} ${result}"
+
+def content = '${JELLY_SCRIPT,template="html"}'
+
+if(to != null && !to.isEmpty()) {
+      emailext(body: content, mimeType: 'text/html',
+         subject: subject,
+         to: to, attachLog: true )
+}
+
+throw e;
+}
 }
